@@ -74,6 +74,7 @@ def start_screen():
                     quit()
                 elif(event.key == K_SPACE):
                     wait_user = False
+                    game()
 
 
 def create(pattern):
@@ -126,14 +127,22 @@ def show_input(evento):
 
 def winner_screen():
     font = pygame.font.Font('freesansbold.ttf', 52)
+    font2 = pygame.font.Font('freesansbold.ttf', 36)
+
     text = font.render('WINNER!!!', True, WHITE, GREEN)
     textRect = text.get_rect()
     textRect.center = (300, 120)
+
+    text2 = font2.render('press SPACE to RESTART', True, WHITE, BLUE)
+    text2Rect = text2.get_rect()
+    text2Rect.center = (300, 180)
+
     pygame.display.flip()
     while True:
         pygame.display.update()
         screen.fill(WRITE)
         screen.blit(text, textRect)
+        screen.blit(text2, text2Rect)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -146,18 +155,46 @@ def winner_screen():
                     start_screen()
 
 def game_over():
-    # Mostrar tela de perdeu
-    # Pedir pra clicar em botão pra tentar novamente (reinicia partida)
-    # Acende os LEDS vermelhos
-    print("kkk")
+    font = pygame.font.Font('freesansbold.ttf', 52)
+    font2 = pygame.font.Font('freesansbold.ttf', 36)
 
+    text = font.render('GAME OVER!!!', True, WHITE, BRIGHT_RED)
+    textRect = text.get_rect()
+    textRect.center = (300, 120)
+
+    text2 = font2.render('press SPACE to RESTART', True, WHITE, BLUE)
+    text2Rect = text2.get_rect()
+    text2Rect.center = (300, 180)
+
+    pygame.display.flip()
+    while True:
+        pygame.display.update()
+        screen.fill(WRITE)
+        screen.blit(text, textRect)
+        screen.blit(text2, text2Rect)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == KEYDOWN:
+                if (event.key == K_ESCAPE):
+                    pygame.quit()
+                    quit()
+                elif(event.key == K_SPACE):
+                    start_screen()
+
+
+def get_level():
+    # Colocar aqui a leitura dos switches para saber o nível
+    # Atualizar o SLEEP
+    return 1
 
 def game():
 
     # - mainloop -
     running = True
     sequence = []
-    start_screen()
+    score = 0
     while running:
         #exibe a tela de inicio
         image, image_rect = create(begin)
@@ -165,11 +202,15 @@ def game():
         screen.blit(image, image_rect) # <- display image
         pygame.display.flip()
         time.sleep(SLEEP)
+        
+        level = get_level()
 
         seq_size = len(sequence)
+
+        score += seq_size * level
         if seq_size == N_ROUNDS:
             winner_screen()
-            
+        
         show_sequence(sequence)
         i=0
 
@@ -186,17 +227,10 @@ def game():
                 running = False
                 ok = False
             elif event.type == KEYDOWN:
-                # if ((event.key == K_w) and(sequence[i] != red_on)):
-                #     ok = False
-                # elif ((event.key == K_e) and(sequence[i] != green_on)):
-                #     ok = False
-                # elif ((event.key == K_d) and(sequence[i] != yellow_on)):
-                #     ok = False
-                # elif ((event.key == K_s) and(sequence[i] != blue_on)):
-                #     ok = False
                 if event.key != key[sequence[i]]:
                     ok = False
                     running = False
+                    game_over()
                 elif (event.key == K_ESCAPE):
                         running = False
                         ok = False
@@ -213,4 +247,4 @@ if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((600,600))
     pygame.display.set_caption("Genius")
-    game()
+    start_screen()
