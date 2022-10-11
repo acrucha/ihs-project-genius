@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 from pygame.locals import *
 
 # --- constants ---
-N_ROUNDS = 10 # Jogo terá 10 rodadas
+N_ROUNDS = 2 # Jogo terá 10 rodadas
 N_INIT_SEQ = 4 # Inicialmente, a sequência tem 4 itens
 SLEEP = 0.3 # Tempo para a pŕoxima cor (depende dos switches)
 BRIGHT_GREEN = (0, 255, 0)
@@ -20,6 +20,7 @@ YELLOW = (180, 140, 0)
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
 
+
 #telas
 begin = (RED, GREEN, YELLOW, BLUE)
 red_on = (BRIGHT_RED, GREEN, YELLOW, BLUE)
@@ -28,10 +29,14 @@ yellow_on = (RED, GREEN, BRIGHT_YELLOW, BLUE)
 blue_on = (RED, GREEN, YELLOW, BRIGHT_BLUE)
 all_on = (BRIGHT_RED, BRIGHT_GREEN, BRIGHT_YELLOW, BRIGHT_BLUE)
 
-# Inicializando Pygame
-pygame.init()
-screen = pygame.display.set_mode((600,600))
-pygame.display.set_caption("Genius")
+
+key = {
+    red_on : K_w,
+    green_on : K_e,
+    yellow_on : K_d,
+    blue_on : K_s
+}
+
 
 def start_screen():
     font = pygame.font.Font('freesansbold.ttf', 42)
@@ -48,7 +53,7 @@ def start_screen():
     text4 = font2.render('use your keyboard to play:', True, BLACK, GREEN)
     text4Rect = text4.get_rect()
     text4Rect.center = (300, 270)
-    img = pygame.image.load("./project/WESD.jpeg").convert()
+    img = pygame.image.load("WESD.jpeg").convert()
     pygame.display.flip()
     wait_user = True
     while wait_user:
@@ -119,52 +124,93 @@ def show_input(evento):
     show_screen(choice)
     show_screen(begin)
 
-# - mainloop -
-running = True
-sequence = []
-start_screen()
-while running:
-    #exibe a tela de inicio
-    image, image_rect = create(begin)
-    screen.fill(BLACK)
-    screen.blit(image, image_rect) # <- display image
+def winner_screen():
+    font = pygame.font.Font('freesansbold.ttf', 52)
+    text = font.render('WINNER!!!', True, WHITE, GREEN)
+    textRect = text.get_rect()
+    textRect.center = (300, 120)
     pygame.display.flip()
-    time.sleep(SLEEP)
+    while True:
+        pygame.display.update()
+        screen.fill(WRITE)
+        screen.blit(text, textRect)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == KEYDOWN:
+                if (event.key == K_ESCAPE):
+                    pygame.quit()
+                    quit()
+                elif(event.key == K_SPACE):
+                    start_screen()
 
-    show_sequence(sequence)
-    seq_size = len(sequence)
-    i=0
+def game_over():
+    # Mostrar tela de perdeu
+    # Pedir pra clicar em botão pra tentar novamente (reinicia partida)
+    # Acende os LEDS vermelhos
+    print("kkk")
 
-    pygame.event.clear()
-    ok = True
-    while ok:
-        if(i>=len(sequence)):
-            ok = False
-            break
-        event = pygame.event.wait()
-        if event.type == QUIT:
-            running = False
-            ok = False
-        elif event.type == KEYDOWN:
-            if ((event.key == K_w) and(sequence[i] != red_on)):
+
+def game():
+
+    # - mainloop -
+    running = True
+    sequence = []
+    start_screen()
+    while running:
+        #exibe a tela de inicio
+        image, image_rect = create(begin)
+        screen.fill(BLACK)
+        screen.blit(image, image_rect) # <- display image
+        pygame.display.flip()
+        time.sleep(SLEEP)
+
+        seq_size = len(sequence)
+        if seq_size == N_ROUNDS:
+            winner_screen()
+            
+        show_sequence(sequence)
+        i=0
+
+        pygame.event.clear()
+        ok = True
+
+        # funcao dps
+        while ok:
+            if(i>=len(sequence)):
+                ok = False
+                break
+            event = pygame.event.wait()
+            if event.type == QUIT:
                 running = False
                 ok = False
-            elif ((event.key == K_e) and(sequence[i] != green_on)):
-                running = False
-                ok = False
-            elif ((event.key == K_d) and(sequence[i] != yellow_on)):
-                running = False
-                ok = False
-            elif ((event.key == K_s) and(sequence[i] != blue_on)):
-                running = False
-                ok = False
-            elif (event.key == K_ESCAPE):
-                    running = False
+            elif event.type == KEYDOWN:
+                # if ((event.key == K_w) and(sequence[i] != red_on)):
+                #     ok = False
+                # elif ((event.key == K_e) and(sequence[i] != green_on)):
+                #     ok = False
+                # elif ((event.key == K_d) and(sequence[i] != yellow_on)):
+                #     ok = False
+                # elif ((event.key == K_s) and(sequence[i] != blue_on)):
+                #     ok = False
+                if event.key != key[sequence[i]]:
                     ok = False
-            else:
-                i += 1
-                show_input(event.key)
-                pygame.event.clear()
+                    running = False
+                elif (event.key == K_ESCAPE):
+                        running = False
+                        ok = False
+                else:
+                    i += 1
+                    show_input(event.key)
+                    pygame.event.clear()
 
-# - end -
-pygame.quit()
+    # - end -
+    pygame.quit()
+
+if __name__ == "__main__":
+    # Inicializando Pygame
+    pygame.init()
+    screen = pygame.display.set_mode((600,600))
+    pygame.display.set_caption("Genius")
+    game()
