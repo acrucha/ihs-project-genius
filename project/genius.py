@@ -1,94 +1,170 @@
-import random
-import time
+from gzip import WRITE
 import pygame
+import time
+import random
+from PIL import Image, ImageDraw
 from pygame.locals import *
 
+# --- constants ---
 N_ROUNDS = 10 # Jogo terá 10 rodadas
 N_INIT_SEQ = 4 # Inicialmente, a sequência tem 4 itens
 SLEEP = 0.3 # Tempo para a pŕoxima cor (depende dos switches)
-
 BRIGHT_GREEN = (0, 255, 0)
 BRIGHT_RED = (255, 0, 0)
 BRIGHT_BLUE = (0, 0, 255)
 BRIGHT_YELLOW = (255, 255, 0)
-
 GREEN = (0, 100, 0)
 RED = (139, 0, 0)
 BLUE = (18, 10, 143)
-YELLOW = (255, 191, 0)
+YELLOW = (180, 140, 0)
+BLACK = (  0,   0,   0)
+WHITE = (255, 255, 255)
 
-# TODO : PARAMETRIZAR ESSES VALORES, CENTRALIZAR NA TELA
-red_triangle = ((81, 315), (230, 315), (230, 169))
-green_triangle = ((412, 315), (263, 315), (263, 169))
-yellow_triangle = ((412, 345), (263, 346), (263, 495))
-blue_triangle = ((81, 345), (230, 346), (230, 495))
+#telas
+begin = (RED, GREEN, YELLOW, BLUE)
+red_on = (BRIGHT_RED, GREEN, YELLOW, BLUE)
+green_on = (RED, BRIGHT_GREEN, YELLOW, BLUE)
+yellow_on = (RED, GREEN, BRIGHT_YELLOW, BLUE)
+blue_on = (RED, GREEN, YELLOW, BRIGHT_BLUE)
+all_on = (BRIGHT_RED, BRIGHT_GREEN, BRIGHT_YELLOW, BRIGHT_BLUE)
 
-# Inicializa Pygame
+# Inicializando Pygame
 pygame.init()
-screen = pygame.display.set_mode((800, 800), RESIZABLE)
+screen = pygame.display.set_mode((600,600))
 pygame.display.set_caption("Genius")
 
-def show_init_screen():
-    '''
-        Exibe a tela inicial: 4 triângulos (luzes) "apagados"
-    '''
-    pygame.draw.polygon(screen, RED,  red_triangle)
-    pygame.draw.polygon(screen, GREEN, green_triangle)
-    pygame.draw.polygon(screen, YELLOW, yellow_triangle)
-    pygame.draw.polygon(screen, BLUE, blue_triangle)
+def start_screen():
+    font = pygame.font.Font('freesansbold.ttf', 42)
+    font2 = pygame.font.Font('freesansbold.ttf', 34)
+    text = font.render('WELCOME TO GENIUS', True, BLACK, BRIGHT_YELLOW)
+    textRect = text.get_rect()
+    textRect.center = (300, 120)
+    text2 = font2.render('press SPACE to START', True, WHITE, BLUE)
+    text2Rect = text2.get_rect()
+    text2Rect.center = (300, 180)
+    text3 = font2.render('press ESC to LEAVE', True, WHITE, RED)
+    text3Rect = text3.get_rect()
+    text3Rect.center = (300, 220)
+    text4 = font2.render('use your keyboard to play:', True, BLACK, GREEN)
+    text4Rect = text4.get_rect()
+    text4Rect.center = (300, 270)
+    img = pygame.image.load("./project/WESD.jpeg").convert()
+    pygame.display.flip()
+    wait_user = True
+    while wait_user:
+        screen.fill(WRITE)
+        screen.blit(text, textRect)
+        screen.blit(text2, text2Rect)
+        screen.blit(text3, text3Rect)
+        screen.blit(text4, text4Rect)
+        screen.blit(img, (170, 300))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            pygame.display.update()
+            if event.type == KEYDOWN:
+                if (event.key == K_ESCAPE):
+                    pygame.quit()
+                    quit()
+                elif(event.key == K_SPACE):
+                    wait_user = False
 
 
-def choose_random_color():
-    '''
-        Escolhe uma das 4 cores aleatoriamente
-    '''
-    red_light = {'color': BRIGHT_RED, 'pos': red_triangle}
-    green_light = {'color': BRIGHT_GREEN, 'pos': green_triangle}
-    yellow_light = {'color': BRIGHT_YELLOW, 'pos': yellow_triangle}
-    blue_light = {'color': BRIGHT_BLUE, 'pos': blue_triangle}
+def create(pattern):
+    # - generate PIL image with black background -
+    image = Image.new("RGBA", (620,620), "#000")
+    draw = ImageDraw.Draw(image, image.mode)
+    draw.pieslice((20, 20 , 600, 600), 180, 270, fill=pattern[0])
+    draw.pieslice((50, 20 , 600, 600), 270, 360, fill=pattern[1])
+    draw.pieslice((50, 50 , 600, 600), 0, 90, fill=pattern[2])
+    draw.pieslice((20, 50 , 600, 600), 90, 180, fill=pattern[3])
+    del draw
+    # - convert into PyGame image -
+    mode = image.mode
+    size = image.size
+    data = image.tobytes()
+    image = pygame.image.fromstring(data, size, mode)
+    image_rect = image.get_rect(center=screen.get_rect().center)
+    return image, image_rect
 
-    colors = [green_light, yellow_light, blue_light, red_light]
-
+def next_color():
+    colors = [red_on, green_on, yellow_on, blue_on]
     return random.choice(colors)
 
-def show_color_sequence(sequence, sleep_time):
-    '''
-        Exibe a sequência de cores => "pisca" cada um dos triângulos da sequência
-    '''
-    for color in sequence:
-        pygame.draw.polygon(screen, color['color'], color['pos']) # "Acende" triângulo da cor da vez
-        pygame.display.update()
-        time.sleep(sleep_time) 
+def show_screen(tela):
+    image, image_rect = create(tela)
+    screen.fill(BLACK)
+    screen.blit(image, image_rect) # <- display image
+    pygame.display.flip()
+    time.sleep(SLEEP)
 
-        show_init_screen() # "Apaga" o triângulo que acendeu
-        pygame.display.update()
-        time.sleep(sleep_time) 
+def show_sequence(sequence):
+    next = next_color()
+    sequence.append(next)
+    for tela in sequence:
+        show_screen(tela)
+        show_screen(begin)
 
+def show_input(evento):
+    choice = begin
+    if(evento==K_w):
+        choice = red_on
+    elif(evento==K_e):
+        choice = green_on
+    elif(evento==K_d):
+        choice = yellow_on
+    elif(evento==K_s):
+        choice = blue_on
+    show_screen(choice)
+    show_screen(begin)
 
-def game():
-    color_sequence = [] # Lista com a sequência de cores
+# - mainloop -
+running = True
+sequence = []
+start_screen()
+while running:
+    #exibe a tela de inicio
+    image, image_rect = create(begin)
+    screen.fill(BLACK)
+    screen.blit(image, image_rect) # <- display image
+    pygame.display.flip()
+    time.sleep(SLEEP)
 
-    # Insere as 4 primeiras cores aleatórias da sequência
-    for i in range (0,N_INIT_SEQ):
-        color_sequence.append(choose_random_color())
+    show_sequence(sequence)
+    seq_size = len(sequence)
+    i=0
 
-    # Exibe as 10 rodadas
-    for i in range (0, N_ROUNDS):
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
+    pygame.event.clear()
+    ok = True
+    while ok:
+        if(i>=len(sequence)):
+            ok = False
+            break
+        event = pygame.event.wait()
+        if event.type == QUIT:
+            running = False
+            ok = False
+        elif event.type == KEYDOWN:
+            if ((event.key == K_w) and(sequence[i] != red_on)):
+                running = False
+                ok = False
+            elif ((event.key == K_e) and(sequence[i] != green_on)):
+                running = False
+                ok = False
+            elif ((event.key == K_d) and(sequence[i] != yellow_on)):
+                running = False
+                ok = False
+            elif ((event.key == K_s) and(sequence[i] != blue_on)):
+                running = False
+                ok = False
+            elif (event.key == K_ESCAPE):
+                    running = False
+                    ok = False
+            else:
+                i += 1
+                show_input(event.key)
+                pygame.event.clear()
 
-        show_init_screen()
-
-        # Gera uma cor aleatória e adiciona à sequência
-        color_sequence.append(choose_random_color())
-
-        # Exibe sequência na tela
-        show_color_sequence(color_sequence, SLEEP)
-
-        pygame.display.update()
-
-
-if __name__ == '__main__':
-    game()
-
+# - end -
+pygame.quit()
