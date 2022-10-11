@@ -29,7 +29,7 @@ yellow_on = (RED, GREEN, BRIGHT_YELLOW, BLUE)
 blue_on = (RED, GREEN, YELLOW, BRIGHT_BLUE)
 all_on = (BRIGHT_RED, BRIGHT_GREEN, BRIGHT_YELLOW, BRIGHT_BLUE)
 
-
+# Associa a cor da sequencia a um evento de teclado
 key = {
     red_on : K_w,
     green_on : K_e,
@@ -114,6 +114,7 @@ def show_sequence(sequence):
 
 def show_input(evento):
     choice = begin
+    # Aqui depois dá pra usar o dicionario de key
     if(evento==K_w):
         choice = red_on
     elif(evento==K_e):
@@ -167,6 +168,7 @@ def game_over():
     text2Rect.center = (300, 180)
 
     pygame.display.flip()
+    # Isso daqui tem repetido em 3 lugares, dá pra melhorar dps
     while True:
         pygame.display.update()
         screen.fill(WRITE)
@@ -189,6 +191,26 @@ def get_level():
     # Atualizar o SLEEP
     return 1
 
+def check_sequence(sequence):
+    i = 0
+    while True:
+        if(i>=len(sequence)):
+            break
+        event = pygame.event.wait()
+        if event.type == QUIT:
+            pygame.quit()
+        elif event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                pygame.quit()
+            if event.key != key[sequence[i]]:
+                return False # se a tecla apertada não corresponde à cor, retorna falso
+            else:
+                i += 1
+                show_input(event.key)
+                pygame.event.clear()
+
+    return True
+
 def game():
 
     # - mainloop -
@@ -204,40 +226,22 @@ def game():
         time.sleep(SLEEP)
         
         level = get_level()
+        
+        show_sequence(sequence)
+
+        pygame.event.clear()
+
+        check = check_sequence(sequence)
+
+        if not check:
+            game_over()
 
         seq_size = len(sequence)
 
         score += seq_size * level
+        
         if seq_size == N_ROUNDS:
             winner_screen()
-        
-        show_sequence(sequence)
-        i=0
-
-        pygame.event.clear()
-        ok = True
-
-        # funcao dps
-        while ok:
-            if(i>=len(sequence)):
-                ok = False
-                break
-            event = pygame.event.wait()
-            if event.type == QUIT:
-                running = False
-                ok = False
-            elif event.type == KEYDOWN:
-                if event.key != key[sequence[i]]:
-                    ok = False
-                    running = False
-                    game_over()
-                elif (event.key == K_ESCAPE):
-                        running = False
-                        ok = False
-                else:
-                    i += 1
-                    show_input(event.key)
-                    pygame.event.clear()
 
     # - end -
     pygame.quit()
