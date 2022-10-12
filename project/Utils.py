@@ -1,9 +1,8 @@
 from pygame.locals import *
 import pygame
 
-N_ROUNDS = 2 # Jogo terá 10 rodadas
-N_INIT_SEQ = 4 # Inicialmente, a sequência tem 4 itens
-SLEEP = 0.3 # Tempo para a pŕoxima cor (depende dos switches)
+N_ROUNDS = 10
+INITIAL_SCREEN, CHOOSE_LEVEL, GAME_ON, GAME_OVER, WINNER = [i for i in range(0,5)]
 
 BRIGHT_GREEN = (0, 255, 0)
 BRIGHT_RED = (255, 0, 0)
@@ -16,7 +15,6 @@ YELLOW = (180, 140, 0)
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
 
-#telas
 begin = (RED, GREEN, YELLOW, BLUE)
 red_on = (BRIGHT_RED, GREEN, YELLOW, BLUE)
 green_on = (RED, BRIGHT_GREEN, YELLOW, BLUE)
@@ -24,13 +22,16 @@ yellow_on = (RED, GREEN, BRIGHT_YELLOW, BLUE)
 blue_on = (RED, GREEN, YELLOW, BRIGHT_BLUE)
 all_on = (BRIGHT_RED, BRIGHT_GREEN, BRIGHT_YELLOW, BRIGHT_BLUE)
 
-# Associa a cor da sequencia a um evento de teclado
-
-key = {
-    red_on : K_w,
-    green_on : K_e,
-    yellow_on : K_d,
-    blue_on : K_s
+key_colors = {
+    K_w : red_on,
+    K_e : green_on,
+    K_d : yellow_on,
+    K_s : blue_on 
 }
 
-INITIAL_SCREEN, GAME_ON, GAME_OVER, WINNER = [i for i in range(0,4)]
+levels = {
+    K_1 : 0.4,
+    K_2 : 0.3,
+    K_3 : 0.2
+}
+
