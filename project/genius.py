@@ -12,11 +12,12 @@ class Game:
         pygame.display.set_caption("GENIUS")
 
         self.font = pygame.font.Font('freesansbold.ttf', 36)
-        self.screen = pygame.display.set_mode((600,600), RESIZABLE)
+        self.screen = pygame.display.set_mode((600,600))
         
         self.state = INITIAL_SCREEN
         self.score = 0
         self.round = 1
+        self.sleep = 0
 
         self.fsm()
     
@@ -24,6 +25,8 @@ class Game:
         while True:
             if self.state == INITIAL_SCREEN:    
                 self.start_screen()
+            elif self.state == CHOOSE_LEVEL:
+                self.choose_level()
             elif self.state == GAME_ON:
                 self.game_on()
             elif self.state == GAME_OVER:
@@ -57,7 +60,7 @@ class Game:
 
                 self.check_quit(event)
                 if event.type == KEYDOWN and event.key == K_SPACE:
-                    self.state = GAME_ON
+                    self.state = CHOOSE_LEVEL
 
     def show_sequence(self, sequence):
         next = self.next_color()
@@ -80,12 +83,13 @@ class Game:
             
             self.check_quit(event)
             
-            if event.type == KEYDOWN:
-                if event.key != key[sequence[i]]:
-                    return False # se a tecla apertada não corresponde à cor, retorna falso
-                else:
+            if event.type == KEYDOWN and event.key in key_colors.keys():
+                if key_colors[event.key] != sequence[i]:
+                    return False
+                else: 
                     i += 1
-                    self.show_input(event.key)
+                    self.create(key_colors[event.key], False)
+                    self.create(begin, False)
                     pygame.event.clear()
 
         return True
@@ -95,6 +99,20 @@ class Game:
             pygame.quit()
             quit()
 
+    def choose_level(self):
+        messages = ['Choose the level', '1 - easy', '2 - medium', '3 - hard']
+        colors = [[WHITE, BRIGHT_BLUE], [WHITE, GREEN], [WHITE, YELLOW], [WHITE, BRIGHT_RED]]
+        pos = [(300, 120), (300, 180), (300, 220), (300, 260)]
+
+        self.render_screen(messages, colors, pos)
+        while self.state == CHOOSE_LEVEL:
+            for event in pygame.event.get():
+                self.check_quit(event)
+                if event.type == KEYDOWN:
+                    if event.key in levels.keys():
+                        self.sleep = levels[event.key]
+                        self.state = GAME_ON
+    
     def game_on(self):
         sequence = []
         self.score = 0
@@ -117,11 +135,11 @@ class Game:
                     self.state = WINNER
                 
     
-    def render_screen(self, message, colors, pos):
+    def render_screen(self, messages, colors, pos):
         self.screen.fill(WRITE)
         
-        for i in range(0, len(message)):
-            text = self.font.render(message[i], True, colors[i][0], colors[i][1])
+        for i in range(0, len(messages)):
+            text = self.font.render(messages[i], True, colors[i][0], colors[i][1])
             text_rect = text.get_rect()
             text_rect.center = pos[i]
             self.screen.blit(text, text_rect)
@@ -130,11 +148,11 @@ class Game:
 
     def game_over(self):
         pygame.display.set_caption("GENIUS | Round " +  str(self.round) + " | Score: " + str(self.score))
-        message = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
+        messages = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
         colors = [[WHITE, BRIGHT_RED], [WHITE, BLUE], [WHITE, GREEN]]
         pos = [(300, 120), (300, 180), (300, 220)]
         
-        self.render_screen(message, colors, pos)
+        self.render_screen(messages, colors, pos)
         
         while self.state == GAME_OVER:
             pygame.display.update()
@@ -144,15 +162,15 @@ class Game:
                     if event.key == K_SPACE:
                         self.state = INITIAL_SCREEN
                     elif event.key == K_RETURN:
-                        self.state = GAME_ON
+                        self.state = CHOOSE_LEVEL
 
     def winner_screen(self):
         pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
-        message = ['WINNER!!!', 'press SPACE to PLAY AGAIN']
+        messages = ['WINNER!!!', 'press SPACE to PLAY AGAIN']
         colors = [[WHITE, GREEN], [WHITE, BLUE]]
         pos = [(300, 120),(300, 180)]
 
-        self.render_screen(message, colors, pos)
+        self.render_screen(messages, colors, pos)
 
         while self.state == WINNER:
             pygame.display.update()
@@ -161,7 +179,7 @@ class Game:
                 if event.type == KEYDOWN and event.key == K_SPACE:
                     self.state = INITIAL_SCREEN
                     
-    def create(self, pattern):
+    def create(self, pattern, default = True):
         image = Image.new("RGBA", (620,620), "#000")
         draw = ImageDraw.Draw(image, image.mode)
 
@@ -181,23 +199,8 @@ class Game:
         self.screen.blit(image, image_rect)
         pygame.display.flip()
 
-        time.sleep(SLEEP)
-
-    def show_input(self, evento):
-        choice = begin
-        # Aqui depois dá pra usar o dicionario de key
-        
-        if(evento==K_w):
-            choice = red_on
-        elif(evento==K_e):
-            choice = green_on
-        elif(evento==K_d):
-            choice = yellow_on
-        elif(evento==K_s):
-            choice = blue_on
-
-        self.create(choice)
-        self.create(begin)
+        sleep = self.sleep if default else 0.1
+        time.sleep(sleep)
 
 if __name__ == "__main__":
     Game()
