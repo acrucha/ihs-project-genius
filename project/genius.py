@@ -1,3 +1,4 @@
+from curses import KEY_ENTER
 from gzip import WRITE
 import pygame
 import time
@@ -77,12 +78,13 @@ class Game:
             
             self.check_quit(event)
             
-            if event.type == KEYDOWN and event.key != key[sequence[i]]:
-                return False # se a tecla apertada não corresponde à cor, retorna falso
-            else:
-                i += 1
-                self.show_input(event.key)
-                pygame.event.clear()
+            if event.type == KEYDOWN:
+                if event.key != key[sequence[i]]:
+                    return False # se a tecla apertada não corresponde à cor, retorna falso
+                else:
+                    i += 1
+                    self.show_input(event.key)
+                    pygame.event.clear()
 
         return True
 
@@ -124,9 +126,9 @@ class Game:
         pygame.display.flip()
 
     def game_over(self):
-        message = ['GAME OVER!!!', 'press SPACE to RESTART']
-        colors = [[WHITE, BRIGHT_RED], [WHITE, BLUE]]
-        pos = [(300, 120), (300, 180)]
+        message = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
+        colors = [[WHITE, BRIGHT_RED], [WHITE, BLUE], [WHITE, GREEN]]
+        pos = [(300, 120), (300, 180), (300, 220)]
         
         self.render_screen(message, colors, pos)
 
@@ -134,11 +136,14 @@ class Game:
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
-                if event.type == KEYDOWN and event.key == K_SPACE:
-                    self.state = INITIAL_SCREEN
+                if event.type == KEYDOWN:
+                    if event.key == K_SPACE:
+                        self.state = INITIAL_SCREEN
+                    elif event.key == K_RETURN:
+                        self.state = GAME_ON
 
     def winner_screen(self):
-        message = ['WINNER!!!', 'press SPACE to RESTART']
+        message = ['WINNER!!!', 'press SPACE to PLAY AGAIN']
         colors = [[WHITE, GREEN], [WHITE, BLUE]]
         pos = [(300, 120),(300, 180)]
 
@@ -150,6 +155,7 @@ class Game:
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
+                time.sleep(SLEEP)
                 if event.type == KEYDOWN and event.key == K_SPACE:
                     self.state = INITIAL_SCREEN
                     
