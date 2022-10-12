@@ -1,4 +1,3 @@
-from curses import KEY_ENTER
 from gzip import WRITE
 import pygame
 import time
@@ -10,12 +9,14 @@ from Utils import *
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption("Genius")
+        pygame.display.set_caption("GENIUS")
 
         self.font = pygame.font.Font('freesansbold.ttf', 36)
-        self.screen = pygame.display.set_mode((600,600))
+        self.screen = pygame.display.set_mode((600,600), RESIZABLE)
         
         self.state = INITIAL_SCREEN
+        self.score = 0
+        self.round = 1
 
         self.fsm()
     
@@ -31,6 +32,7 @@ class Game:
                 self.winner_screen()
 
     def start_screen(self):
+        pygame.display.set_caption("GENIUS")
         messages = ['WELCOME TO GENIUS', 
                     'press SPACE to START', 
                     'press ESC to LEAVE',
@@ -93,13 +95,14 @@ class Game:
             pygame.quit()
             quit()
 
-        
     def game_on(self):
         sequence = []
+        self.score = 0
         
         while self.state == GAME_ON:
             self.create(begin)
-            
+            self.round = len(sequence) + 1
+            pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
             self.show_sequence(sequence)
 
             pygame.event.clear()
@@ -108,11 +111,11 @@ class Game:
 
             if not check:
                 self.state = GAME_OVER
-
-            seq_size = len(sequence)
-            
-            if seq_size == N_ROUNDS:
-                self.state = WINNER
+            else:
+                self.score += self.round
+                if self.round == N_ROUNDS:
+                    self.state = WINNER
+                
     
     def render_screen(self, message, colors, pos):
         self.screen.fill(WRITE)
@@ -126,12 +129,13 @@ class Game:
         pygame.display.flip()
 
     def game_over(self):
+        pygame.display.set_caption("GENIUS | Round " +  str(self.round) + " | Score: " + str(self.score))
         message = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
         colors = [[WHITE, BRIGHT_RED], [WHITE, BLUE], [WHITE, GREEN]]
         pos = [(300, 120), (300, 180), (300, 220)]
         
         self.render_screen(message, colors, pos)
-
+        
         while self.state == GAME_OVER:
             pygame.display.update()
             for event in pygame.event.get():
@@ -143,19 +147,17 @@ class Game:
                         self.state = GAME_ON
 
     def winner_screen(self):
+        pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
         message = ['WINNER!!!', 'press SPACE to PLAY AGAIN']
         colors = [[WHITE, GREEN], [WHITE, BLUE]]
         pos = [(300, 120),(300, 180)]
 
         self.render_screen(message, colors, pos)
-        
-        pygame.display.flip()
 
         while self.state == WINNER:
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
-                time.sleep(SLEEP)
                 if event.type == KEYDOWN and event.key == K_SPACE:
                     self.state = INITIAL_SCREEN
                     
