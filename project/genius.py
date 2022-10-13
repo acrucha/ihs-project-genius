@@ -121,8 +121,8 @@ class Game:
             switches = bin(int.from_bytes(red, 'little'))
             print(switches)
             
-            if switches in levels_switches.keys():
-                self.sleep = levels_switches[switches]
+            if switches in levels.keys():
+                self.sleep = levels[switches]
                 self.state = GAME_ON
 
     
