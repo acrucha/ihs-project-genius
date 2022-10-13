@@ -1,3 +1,5 @@
+import os, sys
+from fcntl import ioctl
 from gzip import WRITE
 import pygame
 import time
@@ -113,6 +115,12 @@ class Game:
                         self.sleep = levels[event.key]
                         self.state = GAME_ON
     
+    def show_seven_segment(num, display):
+        data = decimal_to_seven_segment(num)
+        ioctl(fd, display)
+        retval = os.write(fd, data.to_bytes(4, 'little'))
+        print("wrote %d bytes"%retval)
+
     def game_on(self):
         sequence = []
         self.score = 0
@@ -121,6 +129,10 @@ class Game:
             self.create(begin)
             self.round = len(sequence) + 1
             pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
+
+            self.show_seven_segment(self.round, WR_L_DISPLAY)
+            self.show_seven_segment(self.score, WR_R_DISPLAY)
+
             self.show_sequence(sequence)
 
             pygame.event.clear()
@@ -203,4 +215,11 @@ class Game:
         time.sleep(sleep)
 
 if __name__ == "__main__":
+
+    if len(sys.argv) < 2:
+        print("Error: expected more command line arguments")
+        print("Syntax: %s </dev/device_file>"%sys.argv[0])
+        exit(1)
+
+    fd = os.open(sys.argv[1], os.O_RDWR)
     Game()
