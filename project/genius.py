@@ -5,6 +5,8 @@ import random
 from PIL import Image, ImageDraw
 from pygame.locals import *
 from Utils import *
+import os, sys
+from fcntl import ioctl
 
 class Game:
     def __init__(self):
@@ -155,6 +157,7 @@ class Game:
         self.render_screen(messages, colors, pos)
         
         while self.state == GAME_OVER:
+            self.red_leds()
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
@@ -201,6 +204,20 @@ class Game:
 
         sleep = self.sleep if default else 0.1
         time.sleep(sleep)
+
+    def red_leds_sequence(self): 
+        red_leds = "" 
+        for i in range(18): 
+            red_leds  += str(random.randint(0, 1))    
+        return(red_leds) 
+    
+    def red_leds(self):
+        data = bin(self.red_leds_sequence())
+        fd = os.open(sys.argv[1], os.0_RDWR)
+        ioctl(fd, WR_RED_LEDS)
+        retval = os.write(fd, data.to_bytes(4,'little'))
+        #print("wrote %d bytes"%retval)
+        os.close(fd)
 
 if __name__ == "__main__":
     Game()
