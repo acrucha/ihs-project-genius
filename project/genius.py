@@ -5,6 +5,8 @@ import random
 from PIL import Image, ImageDraw
 from pygame.locals import *
 from Utils import *
+import os, sys
+from fcntl import ioctl
 
 class Game:
     def __init__(self):
@@ -59,7 +61,10 @@ class Game:
                 pygame.display.update()
 
                 self.check_quit(event)
-                if event.type == KEYDOWN and event.key == K_SPACE:
+                # if event.type == KEYDOWN and event.key == K_SPACE:
+                #     self.state = CHOOSE_LEVEL
+                pressed = self.read_buttons()
+                if pressed in BUTTONS and BUTTONS[pressed] == "BUTTON_1":
                     self.state = CHOOSE_LEVEL
 
     def show_sequence(self, sequence):
@@ -95,7 +100,8 @@ class Game:
         return True
 
     def check_quit(self ,event):
-        if (event.type ==  QUIT) or (event.type == KEYDOWN and event.key == K_ESCAPE):
+        pressed = self.read_buttons()
+        if (event.type ==  QUIT) or (pressed in BUTTONS and BUTTONS[pressed] == "BUTTON_3"):
             pygame.quit()
             quit()
 
@@ -158,11 +164,18 @@ class Game:
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
-                if event.type == KEYDOWN:
-                    if event.key == K_SPACE:
+                pressed = self.read_buttons()
+                if pressed in BUTTONS:
+                    if BUTTONS[pressed] == "BUTTON_1":
                         self.state = INITIAL_SCREEN
-                    elif event.key == K_RETURN:
+                    if BUTTONS[pressed] == "BUTTON_2":
                         self.state = CHOOSE_LEVEL
+
+                # if event.type == KEYDOWN:
+                #     if event.key == K_SPACE:
+                #         self.state = INITIAL_SCREEN
+                #     elif event.key == K_RETURN:
+                #         self.state = CHOOSE_LEVEL
 
     def winner_screen(self):
         pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
@@ -176,7 +189,12 @@ class Game:
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
-                if event.type == KEYDOWN and event.key == K_SPACE:
+
+                # if event.type == KEYDOWN and event.key == K_SPACE:
+                #     self.state = INITIAL_SCREEN
+                
+                pressed = self.read_buttons()
+                if pressed in BUTTONS and BUTTONS[pressed] == "BUTTON_1":
                     self.state = INITIAL_SCREEN
                     
     def create(self, pattern, default = True):
@@ -201,6 +219,14 @@ class Game:
 
         sleep = self.sleep if default else 0.1
         time.sleep(sleep)
+    
+    def read_buttons(self):
+        fd = os.open(sys.argv[1], os.O_RDWR)
+        ioctl(fd, RD_PBUTTONS)
+        pressed = os.read(fd, 1); 
+        # print(bin(int.from_bytes(pressed, 'little')))
+        pressed = bin(int.from_bytes(pressed, 'little'))
+        return pressed
 
 if __name__ == "__main__":
     Game()
