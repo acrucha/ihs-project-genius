@@ -226,6 +226,7 @@ class Game:
         pressed = os.read(fd, 1); 
         # print(bin(int.from_bytes(pressed, 'little')))
         pressed = bin(int.from_bytes(pressed, 'little'))
+        os.close(fd)
         return pressed
 
 if __name__ == "__main__":
