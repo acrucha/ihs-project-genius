@@ -2,7 +2,9 @@ from gzip import WRITE
 import pygame
 import time
 import random
+import os, sys
 from PIL import Image, ImageDraw
+from fcntl import ioctl
 from pygame.locals import *
 from Utils import *
 
@@ -105,6 +107,7 @@ class Game:
         pos = [(300, 120), (300, 180), (300, 220), (300, 260)]
 
         self.render_screen(messages, colors, pos)
+
         while self.state == CHOOSE_LEVEL:
             for event in pygame.event.get():
                 self.check_quit(event)
@@ -112,6 +115,16 @@ class Game:
                     if event.key in levels.keys():
                         self.sleep = levels[event.key]
                         self.state = GAME_ON
+
+            ioctl(fd, RD_SWITCHES)
+            red = os.read(fd, 1)
+            switches = bin(int.from_bytes(red, 'little'))
+            print(switches)
+            
+            if switches in levels_switches.keys():
+                self.sleep = levels_switches[switches]
+                self.state = GAME_ON
+
     
     def game_on(self):
         sequence = []
@@ -203,4 +216,12 @@ class Game:
         time.sleep(sleep)
 
 if __name__ == "__main__":
+
+    if len(sys.argv) < 2:
+        print("Error: expected more command line arguments")
+        print("Syntax: %s </dev/device_file>"%sys.argv[0])
+        exit(1)
+
+    fd = os.open(sys.argv[1], os.O_RDWR)
+
     Game()
