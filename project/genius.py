@@ -15,7 +15,7 @@ class Game:
 
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.screen = pygame.display.set_mode((600,600))
-        self.fd = os.open(sys.argv[1], os.O_RDWR)
+        self.fd = os.open(PATH, os.O_RDWR)
         self.state = INITIAL_SCREEN
         self.score = 0
         self.round = 1

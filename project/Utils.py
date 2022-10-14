@@ -4,6 +4,8 @@ import pygame
 N_ROUNDS = 10
 INITIAL_SCREEN, CHOOSE_LEVEL, GAME_ON, GAME_OVER, WINNER = [i for i in range(0,5)]
 
+PATH = '/dev/mydev'
+
 BRIGHT_GREEN = (0, 255, 0)
 BRIGHT_RED = (255, 0, 0)
 BRIGHT_BLUE = (0, 0, 255)
