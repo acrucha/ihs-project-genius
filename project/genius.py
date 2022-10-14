@@ -7,6 +7,8 @@ from PIL import Image, ImageDraw
 from fcntl import ioctl
 from pygame.locals import *
 from Utils import *
+import os, sys
+from fcntl import ioctl
 
 class Game:
     def __init__(self):
@@ -21,7 +23,7 @@ class Game:
         self.score = 0
         self.round = 1
         self.sleep = 0
-        
+
         self.fsm()
     
     def fsm(self):
@@ -38,6 +40,7 @@ class Game:
                 self.winner_screen()
 
     def start_screen(self):
+        self.reset()
         pygame.display.set_caption("GENIUS")
         messages = ['WELCOME TO GENIUS', 
                     'press SPACE to START', 
@@ -56,7 +59,7 @@ class Game:
         img = pygame.image.load("WESD.jpeg").convert()
         self.screen.blit(img, (170, 300))
         pygame.display.flip()
-            
+
         while self.state == INITIAL_SCREEN:
             for event in pygame.event.get():
                 pygame.display.update()
@@ -99,10 +102,12 @@ class Game:
 
     def check_quit(self ,event):
         if (event.type ==  QUIT) or (event.type == KEYDOWN and event.key == K_ESCAPE):
+            os.close(self.fd)
             pygame.quit()
             quit()
 
     def choose_level(self):
+        self.reset()
         messages = ['Choose the level', '1 - easy', '2 - medium', '3 - hard']
         colors = [[WHITE, BRIGHT_BLUE], [WHITE, GREEN], [WHITE, YELLOW], [WHITE, BRIGHT_RED]]
         pos = [(300, 120), (300, 180), (300, 220), (300, 260)]
@@ -126,10 +131,18 @@ class Game:
                 self.state = GAME_ON
 
     
+
+    def reset(self):
+        data = 0b0
+        ioctl(self.fd, WR_RED_LEDS)
+        os.write(self.fd, data.to_bytes(4,'little'))
+        ioctl(self.fd, WR_GREEN_LEDS)
+        os.write(self.fd, data.to_bytes(4,'little'))
+
     def game_on(self):
         sequence = []
         self.score = 0
-        
+
         while self.state == GAME_ON:
             self.create(begin)
             self.round = len(sequence) + 1
@@ -168,6 +181,7 @@ class Game:
         self.render_screen(messages, colors, pos)
         
         while self.state == GAME_OVER:
+            self.red_leds()
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
@@ -186,6 +200,7 @@ class Game:
         self.render_screen(messages, colors, pos)
 
         while self.state == WINNER:
+            self.green_leds()
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
@@ -214,6 +229,27 @@ class Game:
 
         sleep = self.sleep if default else 0.1
         time.sleep(sleep)
+
+    def red_leds_sequence(self): 
+        red_leds = "" 
+        for i in range(18): 
+            red_leds  += str(random.randint(0, 1))    
+        return red_leds 
+    
+    def green_leds(self):
+        data = 0b11111111
+        for i in range(0,9):
+            ioctl(self.fd, WR_GREEN_LEDS)
+            os.write(self.fd, data.to_bytes(4,'little'))
+            time.sleep(0.1)
+            data >>= 1
+
+    def red_leds(self):
+        data = int(self.red_leds_sequence(), 2)
+        ioctl(self.fd, WR_RED_LEDS)
+        os.write(self.fd, data.to_bytes(4,'little'))
+        time.sleep(0.1)
+        
 
 if __name__ == "__main__":
 
