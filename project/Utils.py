@@ -42,7 +42,7 @@ levels = {
     K_3 : 0.2
 }
 
-seven_segment = {
+cad_display = {
     0 : 0b01000000,
     1 : 0b01111001,
     2 : 0b00100100,
@@ -61,7 +61,7 @@ def seven_segment_encoder(num):
 
     while num != 0:
         digit = num%10
-        display |= (seven_segment[digit] << 8*num_digits)
+        display |= (cad_display[digit] << 8*num_digits)
         num_digits += 1
         num = num//10
     
