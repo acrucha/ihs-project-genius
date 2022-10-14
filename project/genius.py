@@ -169,6 +169,9 @@ class Game:
 
     def game_over(self):
         pygame.display.set_caption("GENIUS | Round " +  str(self.round) + " | Score: " + str(self.score))
+        self.show_seven_segment(self.round, WR_L_DISPLAY)
+        self.show_seven_segment(self.score, WR_R_DISPLAY)
+        
         messages = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
         colors = [[WHITE, BRIGHT_RED], [WHITE, BLUE], [WHITE, GREEN]]
         pos = [(300, 120), (300, 180), (300, 220)]
@@ -187,6 +190,9 @@ class Game:
 
     def winner_screen(self):
         pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
+        self.show_seven_segment(self.round, WR_L_DISPLAY)
+        self.show_seven_segment(self.score, WR_R_DISPLAY)
+
         messages = ['WINNER!!!', 'press SPACE to PLAY AGAIN']
         colors = [[WHITE, GREEN], [WHITE, BLUE]]
         pos = [(300, 120),(300, 180)]
