@@ -236,7 +236,7 @@ class Game:
         ioctl(self.fd, WR_RED_LEDS)
         os.write(self.fd, data.to_bytes(4,'little'))
         time.sleep(0.1)
-        #print("wrote %d bytes"%retval)
+        
 
 if __name__ == "__main__":
     Game()
