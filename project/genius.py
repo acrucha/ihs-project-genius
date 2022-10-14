@@ -21,7 +21,7 @@ class Game:
         self.round = 1
         self.sleep = 0
 
-        self.fd = os.open(sys.argv[1], os.O_RDWR)
+        self.fd = os.open(PATH, os.O_RDWR)
 
         self.fsm()
     
@@ -39,6 +39,7 @@ class Game:
                 self.winner_screen()
 
     def start_screen(self):
+        self.reset()
         pygame.display.set_caption("GENIUS")
         messages = ['WELCOME TO GENIUS', 
                     'press SPACE to START', 
@@ -57,7 +58,7 @@ class Game:
         img = pygame.image.load("WESD.jpeg").convert()
         self.screen.blit(img, (170, 300))
         pygame.display.flip()
-            
+
         while self.state == INITIAL_SCREEN:
             for event in pygame.event.get():
                 pygame.display.update()
@@ -105,6 +106,7 @@ class Game:
             quit()
 
     def choose_level(self):
+        self.reset()
         messages = ['Choose the level', '1 - easy', '2 - medium', '3 - hard']
         colors = [[WHITE, BRIGHT_BLUE], [WHITE, GREEN], [WHITE, YELLOW], [WHITE, BRIGHT_RED]]
         pos = [(300, 120), (300, 180), (300, 220), (300, 260)]
@@ -117,11 +119,17 @@ class Game:
                     if event.key in levels.keys():
                         self.sleep = levels[event.key]
                         self.state = GAME_ON
-    
+    def reset(self):
+        data = 0b0
+        ioctl(self.fd, WR_RED_LEDS)
+        os.write(self.fd, data.to_bytes(4,'little'))
+        ioctl(self.fd, WR_GREEN_LEDS)
+        os.write(self.fd, data.to_bytes(4,'little'))
+
     def game_on(self):
         sequence = []
         self.score = 0
-        
+
         while self.state == GAME_ON:
             self.create(begin)
             self.round = len(sequence) + 1
@@ -213,18 +221,18 @@ class Game:
         red_leds = "" 
         for i in range(18): 
             red_leds  += str(random.randint(0, 1))    
-        return(red_leds) 
+        return red_leds 
     
     def green_leds(self):
-        data = 0b10000000
-        for i in range(0,8):
-            ioctl(self.fd, WR_RED_LEDS)
+        data = 0b11111111
+        for i in range(0,9):
+            ioctl(self.fd, WR_GREEN_LEDS)
             os.write(self.fd, data.to_bytes(4,'little'))
             time.sleep(0.1)
-            data >>= data
+            data >>= 1
 
     def red_leds(self):
-        data = bin(self.red_leds_sequence())
+        data = int(self.red_leds_sequence(), 2)
         ioctl(self.fd, WR_RED_LEDS)
         os.write(self.fd, data.to_bytes(4,'little'))
         time.sleep(0.1)
