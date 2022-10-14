@@ -1,3 +1,5 @@
+import os, sys
+from fcntl import ioctl
 from gzip import WRITE
 import pygame
 import time
@@ -23,6 +25,8 @@ class Game:
         self.score = 0
         self.round = 1
         self.sleep = 0
+
+        self.fd = os.open(PATH, os.O_RDWR)
 
         self.fsm()
     
@@ -137,7 +141,11 @@ class Game:
                 self.sleep = levels[switches]
                 self.state = GAME_ON
 
-    
+  
+    def show_seven_segment(self, num, display):
+        data = seven_segment_encoder(num)
+        ioctl(self.fd, display)
+        retval = os.write(self.fd, data.to_bytes(4, 'little'))
 
     def reset(self):
         data = 0b0
@@ -145,8 +153,12 @@ class Game:
         os.write(self.fd, data.to_bytes(4,'little'))
         ioctl(self.fd, WR_GREEN_LEDS)
         os.write(self.fd, data.to_bytes(4,'little'))
+        
+        self.show_seven_segment(0, WR_L_DISPLAY)
+        self.show_seven_segment(0, WR_R_DISPLAY)
 
     def game_on(self):
+        self.reset()
         sequence = []
         self.score = 0
 
@@ -154,6 +166,10 @@ class Game:
             self.create(begin)
             self.round = len(sequence) + 1
             pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
+
+            self.show_seven_segment(self.round, WR_L_DISPLAY)
+            self.show_seven_segment(self.score, WR_R_DISPLAY)
+
             self.show_sequence(sequence)
 
             pygame.event.clear()
@@ -168,6 +184,9 @@ class Game:
                     self.state = WINNER
     def game_over(self):
         pygame.display.set_caption("GENIUS | Round " +  str(self.round) + " | Score: " + str(self.score))
+        self.show_seven_segment(self.round, WR_L_DISPLAY)
+        self.show_seven_segment(self.score, WR_R_DISPLAY)
+        
         messages = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
         colors = [[WHITE, BRIGHT_RED], [WHITE, BLUE], [WHITE, GREEN]]
         pos = [(300, 120), (300, 180), (300, 220)]
@@ -195,6 +214,9 @@ class Game:
 
     def winner_screen(self):
         pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
+        self.show_seven_segment(self.round, WR_L_DISPLAY)
+        self.show_seven_segment(self.score, WR_R_DISPLAY)
+
         messages = ['WINNER!!!', 'press SPACE to PLAY AGAIN']
         colors = [[WHITE, GREEN], [WHITE, BLUE]]
         pos = [(300, 120),(300, 180)]
