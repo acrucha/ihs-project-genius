@@ -2,7 +2,9 @@ from gzip import WRITE
 import pygame
 import time
 import random
+import os, sys
 from PIL import Image, ImageDraw
+from fcntl import ioctl
 from pygame.locals import *
 from Utils import *
 import os, sys
@@ -15,13 +17,12 @@ class Game:
 
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.screen = pygame.display.set_mode((600,600))
-        
+        self.fd = os.open(PATH, os.O_RDWR)
+
         self.state = INITIAL_SCREEN
         self.score = 0
         self.round = 1
         self.sleep = 0
-
-        self.fd = os.open(PATH, os.O_RDWR)
 
         self.fsm()
     
@@ -112,6 +113,7 @@ class Game:
         pos = [(300, 120), (300, 180), (300, 220), (300, 260)]
 
         self.render_screen(messages, colors, pos)
+
         while self.state == CHOOSE_LEVEL:
             for event in pygame.event.get():
                 self.check_quit(event)
@@ -119,6 +121,17 @@ class Game:
                     if event.key in levels.keys():
                         self.sleep = levels[event.key]
                         self.state = GAME_ON
+
+            ioctl(self.fd, RD_SWITCHES)
+            switches = os.read(self.fd, 1)
+            switches = bin(int.from_bytes(switches, 'little'))
+            
+            if switches in levels.keys():
+                self.sleep = levels[switches]
+                self.state = GAME_ON
+
+    
+
     def reset(self):
         data = 0b0
         ioctl(self.fd, WR_RED_LEDS)
@@ -239,4 +252,12 @@ class Game:
         
 
 if __name__ == "__main__":
+
+    if len(sys.argv) < 2:
+        print("Error: expected more command line arguments")
+        print("Syntax: %s </dev/device_file>"%sys.argv[0])
+        exit(1)
+
+    fd = os.open(sys.argv[1], os.O_RDWR)
+
     Game()
