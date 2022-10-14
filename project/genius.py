@@ -21,7 +21,13 @@ class Game:
         self.round = 1
         self.sleep = 0
 
+        self.fd = os.open(PATH, os.O_RDWR)
+
         self.fsm()
+
+    def reset(self):
+        self.show_seven_segment(0, WR_L_DISPLAY)
+        self.show_seven_segment(0, WR_R_DISPLAY)
     
     def fsm(self):
         while True:
@@ -37,6 +43,7 @@ class Game:
                 self.winner_screen()
 
     def start_screen(self):
+        self.reset()
         pygame.display.set_caption("GENIUS")
         messages = ['WELCOME TO GENIUS', 
                     'press SPACE to START', 
@@ -102,6 +109,7 @@ class Game:
             quit()
 
     def choose_level(self):
+        self.reset()
         messages = ['Choose the level', '1 - easy', '2 - medium', '3 - hard']
         colors = [[WHITE, BRIGHT_BLUE], [WHITE, GREEN], [WHITE, YELLOW], [WHITE, BRIGHT_RED]]
         pos = [(300, 120), (300, 180), (300, 220), (300, 260)]
@@ -115,13 +123,14 @@ class Game:
                         self.sleep = levels[event.key]
                         self.state = GAME_ON
     
-    def show_seven_segment(num, display):
+    def show_seven_segment(self, num, display):
         data = seven_segment_encoder(num)
-        ioctl(fd, display)
-        retval = os.write(fd, data.to_bytes(4, 'little'))
-        print("wrote %d bytes"%retval)
+        ioctl(self.fd, display)
+        retval = os.write(self.fd, data.to_bytes(4, 'little'))
+        
 
     def game_on(self):
+        self.reset()
         sequence = []
         self.score = 0
         
@@ -215,11 +224,4 @@ class Game:
         time.sleep(sleep)
 
 if __name__ == "__main__":
-
-    if len(sys.argv) < 2:
-        print("Error: expected more command line arguments")
-        print("Syntax: %s </dev/device_file>"%sys.argv[0])
-        exit(1)
-
-    fd = os.open(sys.argv[1], os.O_RDWR)
     Game()
