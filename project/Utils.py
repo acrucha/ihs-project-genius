@@ -10,8 +10,11 @@ WR_R_DISPLAY  = 24932
 WR_RED_LEDS   = 24933
 WR_GREEN_LEDS = 24934
 
-N_ROUNDS = 10
+N_ROUNDS = 2
 INITIAL_SCREEN, CHOOSE_LEVEL, GAME_ON, GAME_OVER, WINNER = [i for i in range(0,5)]
+PATH = "/dev/mydev"
+
+PATH = '/dev/mydev'
 
 BRIGHT_GREEN = (0, 255, 0)
 BRIGHT_RED = (255, 0, 0)
@@ -23,6 +26,14 @@ BLUE = (18, 10, 143)
 YELLOW = (180, 140, 0)
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
+
+RD_SWITCHES   = 24929
+RD_PBUTTONS   = 24930
+WR_L_DISPLAY  = 24931
+WR_R_DISPLAY  = 24932
+WR_RED_LEDS   = 24933
+WR_GREEN_LEDS = 24934
+
 
 begin = (RED, GREEN, YELLOW, BLUE)
 red_on = (BRIGHT_RED, GREEN, YELLOW, BLUE)
@@ -41,8 +52,13 @@ key_colors = {
 levels = {
     K_1 : 0.4,
     K_2 : 0.3,
-    K_3 : 0.2
+    K_3 : 0.2,
+  
+    "0b100" : 0.4,
+    "0b10" : 0.3,
+    "0b1" : 0.2
 }
+
 
 cad_display = {
     0 : 0b01000000,
@@ -75,3 +91,9 @@ def seven_segment_encoder(num):
         display |= (cad_display["OFF"] << 8*i)
 
     return display
+
+BUTTONS = {
+    "0b1011" : "START",
+    "0b1101" : "RESTART",
+    "0b1110" : "QUIT"
+}
