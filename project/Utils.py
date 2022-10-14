@@ -1,12 +1,12 @@
 from pygame.locals import *
 import pygame
 
-N_ROUNDS = 10
+N_ROUNDS = 2
 INITIAL_SCREEN, CHOOSE_LEVEL, GAME_ON, GAME_OVER, WINNER = [i for i in range(0,5)]
 PATH = "/dev/mydev"
 
 BRIGHT_GREEN = (0, 255, 0)
-BRIGHT_RED =switches (255, 0, 0)
+BRIGHT_RED = (255, 0, 0)
 BRIGHT_BLUE = (0, 0, 255)
 BRIGHT_YELLOW = (255, 255, 0)
 GREEN = (0, 100, 0)
@@ -43,7 +43,7 @@ levels = {
     K_2 : 0.3,
     K_3 : 0.2,
     
-    "0b109" : 0.4,
-    "0b01" : 0.3,
+    "0b100" : 0.4,
+    "0b10" : 0.3,
     "0b1" : 0.2
 }

@@ -125,6 +125,7 @@ class Game:
             ioctl(self.fd, RD_SWITCHES)
             switches = os.read(self.fd, 1)
             switches = bin(int.from_bytes(switches, 'little'))
+            print(switches)
             
             if switches in levels.keys():
                 self.sleep = levels[switches]
@@ -252,12 +253,4 @@ class Game:
         
 
 if __name__ == "__main__":
-
-    if len(sys.argv) < 2:
-        print("Error: expected more command line arguments")
-        print("Syntax: %s </dev/device_file>"%sys.argv[0])
-        exit(1)
-
-    fd = os.open(sys.argv[1], os.O_RDWR)
-
     Game()
