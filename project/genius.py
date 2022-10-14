@@ -21,6 +21,8 @@ class Game:
         self.round = 1
         self.sleep = 0
 
+        self.fd = os.open(sys.argv[1], os.O_RDWR)
+
         self.fsm()
     
     def fsm(self):
@@ -98,6 +100,7 @@ class Game:
 
     def check_quit(self ,event):
         if (event.type ==  QUIT) or (event.type == KEYDOWN and event.key == K_ESCAPE):
+            os.close(self.fd)
             pygame.quit()
             quit()
 
@@ -176,6 +179,7 @@ class Game:
         self.render_screen(messages, colors, pos)
 
         while self.state == WINNER:
+            self.green_leds()
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
@@ -211,13 +215,20 @@ class Game:
             red_leds  += str(random.randint(0, 1))    
         return(red_leds) 
     
+    def green_leds(self):
+        data = 0b10000000
+        for i in range(0,8):
+            ioctl(self.fd, WR_RED_LEDS)
+            os.write(self.fd, data.to_bytes(4,'little'))
+            time.sleep(0.1)
+            data >>= data
+
     def red_leds(self):
         data = bin(self.red_leds_sequence())
-        fd = os.open(sys.argv[1], os.0_RDWR)
-        ioctl(fd, WR_RED_LEDS)
-        retval = os.write(fd, data.to_bytes(4,'little'))
+        ioctl(self.fd, WR_RED_LEDS)
+        os.write(self.fd, data.to_bytes(4,'little'))
+        time.sleep(0.1)
         #print("wrote %d bytes"%retval)
-        os.close(fd)
 
 if __name__ == "__main__":
     Game()
