@@ -68,6 +68,10 @@ class Game:
                 if event.type == KEYDOWN and event.key == K_SPACE:
                     self.state = CHOOSE_LEVEL
 
+            button = self.read_buttons()    
+            if button in BUTTONS and BUTTONS[button] == "START":
+                self.state = CHOOSE_LEVEL
+
     def show_sequence(self, sequence):
         next = self.next_color()
         sequence.append(next)
@@ -122,6 +126,8 @@ class Game:
                         self.sleep = levels[event.key]
                         self.state = GAME_ON
 
+            self.read_buttons()
+            
             ioctl(self.fd, RD_SWITCHES)
             switches = os.read(self.fd, 1)
             switches = bin(int.from_bytes(switches, 'little'))
@@ -160,19 +166,6 @@ class Game:
                 self.score += self.round
                 if self.round == N_ROUNDS:
                     self.state = WINNER
-                
-    
-    def render_screen(self, messages, colors, pos):
-        self.screen.fill(WRITE)
-        
-        for i in range(0, len(messages)):
-            text = self.font.render(messages[i], True, colors[i][0], colors[i][1])
-            text_rect = text.get_rect()
-            text_rect.center = pos[i]
-            self.screen.blit(text, text_rect)
-        
-        pygame.display.flip()
-
     def game_over(self):
         pygame.display.set_caption("GENIUS | Round " +  str(self.round) + " | Score: " + str(self.score))
         messages = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
@@ -186,11 +179,19 @@ class Game:
             pygame.display.update()
             for event in pygame.event.get():
                 self.check_quit(event)
+
                 if event.type == KEYDOWN:
                     if event.key == K_SPACE:
                         self.state = INITIAL_SCREEN
                     elif event.key == K_RETURN:
                         self.state = CHOOSE_LEVEL
+
+            button = self.read_buttons()
+            if button in BUTTONS:
+                if BUTTONS[button] == "START":
+                    self.state = INITIAL_SCREEN
+                if BUTTONS[button] == "RESTART":
+                    self.state = CHOOSE_LEVEL
 
     def winner_screen(self):
         pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
@@ -207,6 +208,57 @@ class Game:
                 self.check_quit(event)
                 if event.type == KEYDOWN and event.key == K_SPACE:
                     self.state = INITIAL_SCREEN
+                
+            button = self.read_buttons()
+            if button in BUTTONS and BUTTONS[button] == "START":
+                self.state = INITIAL_SCREEN
+
+    def show_sequence(self, sequence):
+        next = self.next_color()
+        sequence.append(next)
+        for tela in sequence:
+            self.create(tela)
+            self.create(begin)
+    
+    def next_color(self):
+        colors = [red_on, green_on, yellow_on, blue_on]
+        return random.choice(colors)
+
+    def check_sequence(self, sequence):
+        i = 0
+        while True:
+            if i >= len(sequence):
+                break
+
+            event = pygame.event.wait()
+            
+            self.check_quit(event)
+            
+            if event.type == KEYDOWN and event.key in key_colors.keys():
+                if key_colors[event.key] != sequence[i]:
+                    return False
+                else: 
+                    i += 1
+                    self.create(key_colors[event.key], False)
+                    self.create(begin, False)
+                    pygame.event.clear()
+        return True
+
+    def check_quit(self ,event):
+        if event.type ==  QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+            pygame.quit()
+            quit()
+    
+    def render_screen(self, messages, colors, pos):
+        self.screen.fill(WRITE)
+        
+        for i in range(0, len(messages)):
+            text = self.font.render(messages[i], True, colors[i][0], colors[i][1])
+            text_rect = text.get_rect()
+            text_rect.center = pos[i]
+            self.screen.blit(text, text_rect)
+        
+        pygame.display.flip()
                     
     def create(self, pattern, default = True):
         image = Image.new("RGBA", (620,620), "#000")
@@ -230,6 +282,18 @@ class Game:
 
         sleep = self.sleep if default else 0.1
         time.sleep(sleep)
+    
+    def read_buttons(self):
+        ioctl(self.fd, RD_PBUTTONS)
+        button = os.read(self.fd, 1); 
+        button = bin(int.from_bytes(button, 'little'))
+        time.sleep(0.15)
+
+        if button in BUTTONS and BUTTONS[button] == 'QUIT':
+            pygame.quit()
+            quit()
+
+        return button
 
     def red_leds_sequence(self): 
         red_leds = "" 

@@ -5,6 +5,8 @@ N_ROUNDS = 2
 INITIAL_SCREEN, CHOOSE_LEVEL, GAME_ON, GAME_OVER, WINNER = [i for i in range(0,5)]
 PATH = "/dev/mydev"
 
+PATH = '/dev/mydev'
+
 BRIGHT_GREEN = (0, 255, 0)
 BRIGHT_RED = (255, 0, 0)
 BRIGHT_BLUE = (0, 0, 255)
@@ -42,8 +44,14 @@ levels = {
     K_1 : 0.4,
     K_2 : 0.3,
     K_3 : 0.2,
-    
+  
     "0b100" : 0.4,
     "0b10" : 0.3,
     "0b1" : 0.2
+}
+
+BUTTONS = {
+    "0b1011" : "START",
+    "0b1101" : "RESTART",
+    "0b1110" : "QUIT"
 }
