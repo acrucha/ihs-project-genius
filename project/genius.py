@@ -15,12 +15,13 @@ class Game:
 
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.screen = pygame.display.set_mode((600,600))
-        
+        self.fd = os.open(PATH, os.O_RDWR)
+
         self.state = INITIAL_SCREEN
         self.score = 0
         self.round = 1
         self.sleep = 0
-
+        
         self.fsm()
     
     def fsm(self):
@@ -116,10 +117,9 @@ class Game:
                         self.sleep = levels[event.key]
                         self.state = GAME_ON
 
-            ioctl(fd, RD_SWITCHES)
-            red = os.read(fd, 1)
-            switches = bin(int.from_bytes(red, 'little'))
-            print(switches)
+            ioctl(self.fd, RD_SWITCHES)
+            switches = os.read(self.fd, 1)
+            switches = bin(int.from_bytes(switches, 'little'))
             
             if switches in levels.keys():
                 self.sleep = levels[switches]

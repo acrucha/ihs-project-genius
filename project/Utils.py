@@ -3,6 +3,7 @@ import pygame
 
 N_ROUNDS = 10
 INITIAL_SCREEN, CHOOSE_LEVEL, GAME_ON, GAME_OVER, WINNER = [i for i in range(0,5)]
+PATH = "/dev/mydev"
 
 BRIGHT_GREEN = (0, 255, 0)
 BRIGHT_RED = (255, 0, 0)
@@ -42,9 +43,9 @@ levels = {
     K_2 : 0.3,
     K_3 : 0.2,
     
-    "0b10000000" : 0.4,
-    "0b01000000" : 0.3,
-    "0b00100000" : 0.2
+    "0b109" : 0.4,
+    "0b01" : 0.3,
+    "0b1" : 0.2
 }
 
 
