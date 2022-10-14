@@ -258,7 +258,7 @@ static long int my_ioctl(struct file *, unsigned int cmd, unsigned long arg)
 		wr_name_idx = IDX_DISPLAYR;
 		break;
 	case WR_RED_LEDS:
-		write_pointer = bar0_mmio + 0xC100; // TODO: update offset
+		write_pointer = bar0_mmio + 0xC120; // TODO: update offset
 		wr_name_idx = IDX_DISPLAYR;
 		break;
 	case WR_GREEN_LEDS:
