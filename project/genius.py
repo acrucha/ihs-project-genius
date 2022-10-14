@@ -116,7 +116,7 @@ class Game:
                         self.state = GAME_ON
     
     def show_seven_segment(num, display):
-        data = decimal_to_seven_segment(num)
+        data = seven_segment_encoder(num)
         ioctl(fd, display)
         retval = os.write(fd, data.to_bytes(4, 'little'))
         print("wrote %d bytes"%retval)

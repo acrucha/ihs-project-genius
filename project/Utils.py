@@ -1,5 +1,4 @@
 from pygame.locals import *
-import pygame
 
 # ioctl commands defined at the pci driver
 RD_SWITCHES   = 24929
@@ -56,13 +55,14 @@ seven_segment = {
     9 : 0b00010000,
 }
 
-def decimal_to_seven_segment(num):
+def seven_segment_encoder(num):
     display = 0
+    num_digits = 0
 
     while num != 0:
-        digit %= 10
-        display <<= 8
-        display |= seven_segment[digit]
-        num /= 10
+        digit = num%10
+        display |= (seven_segment[digit] << 8*num_digits)
+        num_digits += 1
+        num = num//10
     
     return display
