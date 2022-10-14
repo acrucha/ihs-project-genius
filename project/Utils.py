@@ -43,7 +43,7 @@ WR_RED_LEDS   = 24933
 WR_GREEN_LEDS = 24934
 
 BUTTONS = {
-    1011 : "BUTTON_1",
-    1101 : "BUTTON_2",
-    1110 : "BUTTON_3"
+    "0b1011" : "START",
+    "0b1101" : "RESTART",
+    "0b1110" : "QUIT"
 }

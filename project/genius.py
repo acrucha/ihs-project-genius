@@ -15,7 +15,7 @@ class Game:
 
         self.font = pygame.font.Font('freesansbold.ttf', 36)
         self.screen = pygame.display.set_mode((600,600))
-        
+        self.fd = os.open(sys.argv[1], os.O_RDWR)
         self.state = INITIAL_SCREEN
         self.score = 0
         self.round = 1
@@ -61,11 +61,93 @@ class Game:
                 pygame.display.update()
 
                 self.check_quit(event)
-                # if event.type == KEYDOWN and event.key == K_SPACE:
-                #     self.state = CHOOSE_LEVEL
-                pressed = self.read_buttons()
-                if pressed in BUTTONS and BUTTONS[pressed] == "BUTTON_1":
+                if event.type == KEYDOWN and event.key == K_SPACE:
                     self.state = CHOOSE_LEVEL
+
+            button = self.read_buttons()    
+            if button in BUTTONS and BUTTONS[button] == "START":
+                self.state = CHOOSE_LEVEL
+
+    def choose_level(self):
+        messages = ['Choose the level', '1 - easy', '2 - medium', '3 - hard']
+        colors = [[WHITE, BRIGHT_BLUE], [WHITE, GREEN], [WHITE, YELLOW], [WHITE, BRIGHT_RED]]
+        pos = [(300, 120), (300, 180), (300, 220), (300, 260)]
+
+        self.render_screen(messages, colors, pos)
+        while self.state == CHOOSE_LEVEL:
+            for event in pygame.event.get():
+                self.check_quit(event)
+                if event.type == KEYDOWN:
+                    if event.key in levels.keys():
+                        self.sleep = levels[event.key]
+                        self.state = GAME_ON
+
+            self.read_buttons()
+    
+    def game_on(self):
+        sequence = []
+        self.score = 0
+        
+        while self.state == GAME_ON:
+            self.create(begin)
+            self.round = len(sequence) + 1
+            pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
+            self.show_sequence(sequence)
+
+            pygame.event.clear()
+
+            check = self.check_sequence(sequence)
+
+            if not check:
+                self.state = GAME_OVER
+            else:
+                self.score += self.round
+                if self.round == N_ROUNDS:
+                    self.state = WINNER
+    def game_over(self):
+        pygame.display.set_caption("GENIUS | Round " +  str(self.round) + " | Score: " + str(self.score))
+        messages = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
+        colors = [[WHITE, BRIGHT_RED], [WHITE, BLUE], [WHITE, GREEN]]
+        pos = [(300, 120), (300, 180), (300, 220)]
+        
+        self.render_screen(messages, colors, pos)
+        
+        while self.state == GAME_OVER:
+            pygame.display.update()
+            for event in pygame.event.get():
+                self.check_quit(event)
+
+                if event.type == KEYDOWN:
+                    if event.key == K_SPACE:
+                        self.state = INITIAL_SCREEN
+                    elif event.key == K_RETURN:
+                        self.state = CHOOSE_LEVEL
+
+            button = self.read_buttons()
+            if button in BUTTONS:
+                if BUTTONS[button] == "START":
+                    self.state = INITIAL_SCREEN
+                if BUTTONS[button] == "RESTART":
+                    self.state = CHOOSE_LEVEL
+
+    def winner_screen(self):
+        pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
+        messages = ['WINNER!!!', 'press SPACE to PLAY AGAIN']
+        colors = [[WHITE, GREEN], [WHITE, BLUE]]
+        pos = [(300, 120),(300, 180)]
+
+        self.render_screen(messages, colors, pos)
+
+        while self.state == WINNER:
+            pygame.display.update()
+            for event in pygame.event.get():
+                self.check_quit(event)
+                if event.type == KEYDOWN and event.key == K_SPACE:
+                    self.state = INITIAL_SCREEN
+                
+            button = self.read_buttons()
+            if button in BUTTONS and BUTTONS[button] == "START":
+                self.state = INITIAL_SCREEN
 
     def show_sequence(self, sequence):
         next = self.next_color()
@@ -96,50 +178,12 @@ class Game:
                     self.create(key_colors[event.key], False)
                     self.create(begin, False)
                     pygame.event.clear()
-
         return True
 
     def check_quit(self ,event):
-        pressed = self.read_buttons()
-        if (event.type ==  QUIT) or (pressed in BUTTONS and BUTTONS[pressed] == "BUTTON_3"):
+        if event.type ==  QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             pygame.quit()
             quit()
-
-    def choose_level(self):
-        messages = ['Choose the level', '1 - easy', '2 - medium', '3 - hard']
-        colors = [[WHITE, BRIGHT_BLUE], [WHITE, GREEN], [WHITE, YELLOW], [WHITE, BRIGHT_RED]]
-        pos = [(300, 120), (300, 180), (300, 220), (300, 260)]
-
-        self.render_screen(messages, colors, pos)
-        while self.state == CHOOSE_LEVEL:
-            for event in pygame.event.get():
-                self.check_quit(event)
-                if event.type == KEYDOWN:
-                    if event.key in levels.keys():
-                        self.sleep = levels[event.key]
-                        self.state = GAME_ON
-    
-    def game_on(self):
-        sequence = []
-        self.score = 0
-        
-        while self.state == GAME_ON:
-            self.create(begin)
-            self.round = len(sequence) + 1
-            pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
-            self.show_sequence(sequence)
-
-            pygame.event.clear()
-
-            check = self.check_sequence(sequence)
-
-            if not check:
-                self.state = GAME_OVER
-            else:
-                self.score += self.round
-                if self.round == N_ROUNDS:
-                    self.state = WINNER
-                
     
     def render_screen(self, messages, colors, pos):
         self.screen.fill(WRITE)
@@ -151,51 +195,6 @@ class Game:
             self.screen.blit(text, text_rect)
         
         pygame.display.flip()
-
-    def game_over(self):
-        pygame.display.set_caption("GENIUS | Round " +  str(self.round) + " | Score: " + str(self.score))
-        messages = ['GAME OVER!!!', 'press SPACE to GO TO MENU', 'press ENTER to TRY AGAIN']
-        colors = [[WHITE, BRIGHT_RED], [WHITE, BLUE], [WHITE, GREEN]]
-        pos = [(300, 120), (300, 180), (300, 220)]
-        
-        self.render_screen(messages, colors, pos)
-        
-        while self.state == GAME_OVER:
-            pygame.display.update()
-            for event in pygame.event.get():
-                self.check_quit(event)
-                pressed = self.read_buttons()
-                if pressed in BUTTONS:
-                    if BUTTONS[pressed] == "BUTTON_1":
-                        self.state = INITIAL_SCREEN
-                    if BUTTONS[pressed] == "BUTTON_2":
-                        self.state = CHOOSE_LEVEL
-
-                # if event.type == KEYDOWN:
-                #     if event.key == K_SPACE:
-                #         self.state = INITIAL_SCREEN
-                #     elif event.key == K_RETURN:
-                #         self.state = CHOOSE_LEVEL
-
-    def winner_screen(self):
-        pygame.display.set_caption("GENIUS | Round " + str(self.round) + " | Score: " + str(self.score))
-        messages = ['WINNER!!!', 'press SPACE to PLAY AGAIN']
-        colors = [[WHITE, GREEN], [WHITE, BLUE]]
-        pos = [(300, 120),(300, 180)]
-
-        self.render_screen(messages, colors, pos)
-
-        while self.state == WINNER:
-            pygame.display.update()
-            for event in pygame.event.get():
-                self.check_quit(event)
-
-                # if event.type == KEYDOWN and event.key == K_SPACE:
-                #     self.state = INITIAL_SCREEN
-                
-                pressed = self.read_buttons()
-                if pressed in BUTTONS and BUTTONS[pressed] == "BUTTON_1":
-                    self.state = INITIAL_SCREEN
                     
     def create(self, pattern, default = True):
         image = Image.new("RGBA", (620,620), "#000")
@@ -221,13 +220,16 @@ class Game:
         time.sleep(sleep)
     
     def read_buttons(self):
-        fd = os.open(sys.argv[1], os.O_RDWR)
-        ioctl(fd, RD_PBUTTONS)
-        pressed = os.read(fd, 1); 
-        # print(bin(int.from_bytes(pressed, 'little')))
-        pressed = bin(int.from_bytes(pressed, 'little'))
-        os.close(fd)
-        return pressed
+        ioctl(self.fd, RD_PBUTTONS)
+        button = os.read(self.fd, 1); 
+        button = bin(int.from_bytes(button, 'little'))
+        time.sleep(0.15)
+
+        if button in BUTTONS and BUTTONS[button] == 'QUIT':
+            pygame.quit()
+            quit()
+
+        return button
 
 if __name__ == "__main__":
     Game()
