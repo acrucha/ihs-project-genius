@@ -62,11 +62,14 @@ def seven_segment_encoder(num):
     display = 0
     num_digits = 0
 
-    while num != 0:
+    while True:
         digit = num%10
         display |= (cad_display[digit] << 8*num_digits)
         num_digits += 1
         num = num//10
+        
+        if num == 0:
+            break
 
     for i in range (num_digits, num_digits + (4-num_digits)):
         display |= (cad_display["OFF"] << 8*i)
