@@ -246,7 +246,7 @@ static long int my_ioctl(struct file *, unsigned int cmd, unsigned long arg)
 		rd_name_idx = IDX_SWITCH;
 		break;
 	case RD_PBUTTONS:
-		read_pointer = bar0_mmio + 0xC0A0; // TODO: update offset
+		read_pointer = bar0_mmio + 0xC060; // TODO: update offset
 		rd_name_idx = IDX_PBUTTONS;
 		break;
 	case WR_L_DISPLAY:
