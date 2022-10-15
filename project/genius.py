@@ -4,13 +4,9 @@ from gzip import WRITE
 import pygame
 import time
 import random
-import os, sys
 from PIL import Image, ImageDraw
-from fcntl import ioctl
 from pygame.locals import *
 from Utils import *
-import os, sys
-from fcntl import ioctl
 
 class Game:
     def __init__(self):

@@ -11,6 +11,7 @@ WR_RED_LEDS   = 24933
 WR_GREEN_LEDS = 24934
 
 N_ROUNDS = 2
+
 INITIAL_SCREEN, CHOOSE_LEVEL, GAME_ON, GAME_OVER, WINNER = [i for i in range(0,5)]
 
 BRIGHT_GREEN = (0, 255, 0)
@@ -23,14 +24,6 @@ BLUE = (18, 10, 143)
 YELLOW = (180, 140, 0)
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
-
-RD_SWITCHES   = 24929
-RD_PBUTTONS   = 24930
-WR_L_DISPLAY  = 24931
-WR_R_DISPLAY  = 24932
-WR_RED_LEDS   = 24933
-WR_GREEN_LEDS = 24934
-
 
 begin = (RED, GREEN, YELLOW, BLUE)
 red_on = (BRIGHT_RED, GREEN, YELLOW, BLUE)
@@ -71,6 +64,12 @@ cad_display = {
     "OFF" : 0b11111111
 }
 
+BUTTONS = {
+    "0b1011" : "START",
+    "0b1101" : "RESTART",
+    "0b1110" : "QUIT"
+}
+
 def seven_segment_encoder(num):
     display = 0
     num_digits = 0
@@ -88,9 +87,3 @@ def seven_segment_encoder(num):
         display |= (cad_display["OFF"] << 8*i)
 
     return display
-
-BUTTONS = {
-    "0b1011" : "START",
-    "0b1101" : "RESTART",
-    "0b1110" : "QUIT"
-}
