@@ -250,11 +250,11 @@ static long int my_ioctl(struct file *, unsigned int cmd, unsigned long arg)
 		rd_name_idx = IDX_PBUTTONS;
 		break;
 	case WR_L_DISPLAY:
-		write_pointer = bar0_mmio + 0xC040; // TODO: update offset
+		write_pointer = bar0_mmio + 0xC160; // TODO: update offset
 		wr_name_idx = IDX_DISPLAYL;
 		break;
 	case WR_R_DISPLAY:
-		write_pointer = bar0_mmio + 0xC000; // TODO: update offset
+		write_pointer = bar0_mmio + 0xC040; // TODO: update offset
 		wr_name_idx = IDX_DISPLAYR;
 		break;
 	case WR_RED_LEDS:
