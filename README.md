@@ -1,18 +1,32 @@
-# Project layout helper and Scripts/Documentations for developing IF817 Course project
+# Genius
 
-**REMIDER**: This project layout it's not mandatory! You can feel free to use whatever build system you use for developing a user application. This has only a simple Makefile for people who don't need to setup a complex build system and just want to develop a simple C/C++/Assembly application. BUT be careful with the 'driver' folder, inside it has a Makefile that is vital for building the driver/module and one must not remove it.
+Para jogar, entre na pasta ``src``
 
-## Content
- - [Useful Commands](docs/commands.md)
+```
+	cd src
+```
 
-## Current project tree
+E execute o arquivo ``genius.py``
 
+
+```
+	python genius.py
+```
+
+## Equipe
+
+- Andresa Almeida da Silva (aas10)
+- Maria Clara Alves Acruchi (mcaa)
+- Maria Luísa dos Santos Silva (mlss)
+- Maria Vitória Soares Muniz (mvsm3)
+- Rebecca Lima Sousa (rls7)
+- Tales Vinícius Alves da Cunha (tvac)
+  
+## Organização do Projeto
 	.
 	├── src
-	│   └── main.cpp
-	├── include
-	│   ├── display.h
-	│   └── ioctl_cmds.h
+	│   ├── genius.cpp
+	|	└── Utils.cpp
 	├── driver
 	│   ├── char
 	│   │   ├── dummy.c
@@ -20,15 +34,6 @@
 	│   └── pci
 	│       ├── de2i-150.c
 	│       └── Makefile
-	├── exemples
-	│   ├── c
-	│   │   ├── app-char.c
-	│   │   └── app-pci.c
-	│   └── python
-	│       ├── app-char.py
-	│       └── app-pci.py
-	├── docs
-	│   └── commands.md
 	├── LICENSE
 	├── Makefile
 	├── README.md
