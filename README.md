@@ -22,19 +22,3 @@ E execute o arquivo ``genius.py``
 - Rebecca Lima Sousa (rls7)
 - Tales Vinícius Alves da Cunha (tvac)
   
-## Organização do Projeto
-	.
-	├── src
-	│   ├── genius.cpp
-	|	└── Utils.cpp
-	├── driver
-	│   ├── char
-	│   │   ├── dummy.c
-	│   │   └── Makefile
-	│   └── pci
-	│       ├── de2i-150.c
-	│       └── Makefile
-	├── LICENSE
-	├── Makefile
-	├── README.md
-	└── setup.sh
