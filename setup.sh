@@ -4,11 +4,9 @@ GREEN='\033[0;32m'
 CLEAR='\033[0m'
 
 echo -e "$GREEN BUILDING APP $CLEAR"
-make
 
 echo -e "$GREEN BUILDING DRIVER $CLEAR"
 cd driver/pci
-make
 echo -e "$GREEN REMOVING OLD DRIVERS $CLEAR"
 sudo rmmod de2i_150
 echo -e "$GREEN INSERTING DRIVER TO KERNEL $CLEAR"
