@@ -19,7 +19,7 @@ Na pasta base, rode o script de setup e instale as dependências do jogo, quando
 ## Como jogar
 Execute o jogo presente na pasta project.
 ```
-	cd project
+	cd application/src
 	python genius.py
 ```
 Observação: o jogo também funciona com python3.
