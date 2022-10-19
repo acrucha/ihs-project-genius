@@ -1,35 +1,25 @@
-# Project layout helper and Scripts/Documentations for developing IF817 Course project
+# Genius
+Projeto da disciplina Interface Hardware-Software que busca usar períficos da FPGA através de uma simulação do jogo Genius.
 
-**REMIDER**: This project layout it's not mandatory! You can feel free to use whatever build system you use for developing a user application. This has only a simple Makefile for people who don't need to setup a complex build system and just want to develop a simple C/C++/Assembly application. BUT be careful with the 'driver' folder, inside it has a Makefile that is vital for building the driver/module and one must not remove it.
+## Equipe
+- Andresa Almeida da Silva (aas10)
+- Maria Clara Alves Acruchi (mcaa)
+- Maria Luísa dos Santos Silva (mlss)
+- Maria Vitória Soares Muniz (mvsm3)
+- Rebecca Lima Sousa (rls7)
+- Tales Vinícius Alves da Cunha (tvac)
+  
+## Setup
+Na pasta base, rode o script de setup e instale as dependências do jogo, quando necessário.
+```
+	./setup.sh
+	pip install pygame
+```
 
-## Content
- - [Useful Commands](docs/commands.md)
-
-## Current project tree
-
-	.
-	├── src
-	│   └── main.cpp
-	├── include
-	│   ├── display.h
-	│   └── ioctl_cmds.h
-	├── driver
-	│   ├── char
-	│   │   ├── dummy.c
-	│   │   └── Makefile
-	│   └── pci
-	│       ├── de2i-150.c
-	│       └── Makefile
-	├── exemples
-	│   ├── c
-	│   │   ├── app-char.c
-	│   │   └── app-pci.c
-	│   └── python
-	│       ├── app-char.py
-	│       └── app-pci.py
-	├── docs
-	│   └── commands.md
-	├── LICENSE
-	├── Makefile
-	├── README.md
-	└── setup.sh
+## Como jogar
+Execute o jogo presente na pasta project.
+```
+	cd project
+	python genius.py
+```
+Observação: o jogo também funciona com python3.
